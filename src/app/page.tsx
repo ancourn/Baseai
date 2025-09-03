@@ -5,7 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Brain, Image as ImageIcon, Search, MessageSquare, FileText, Settings, Sparkles, BookOpen, GitCompare, Database } from "lucide-react"
+import { Brain, Image as ImageIcon, Search, MessageSquare, FileText, Settings, Sparkles, BookOpen, GitCompare, Database, Globe } from "lucide-react"
 import { TextGeneration } from "@/components/ai/text-generation"
 import { ImageGeneration } from "@/components/ai/image-generation"
 import { WebSearch } from "@/components/ai/web-search"
@@ -13,6 +13,8 @@ import { ChatInterface } from "@/components/ai/chat-interface"
 import { DocumentAnalysis } from "@/components/ai/document-analysis"
 import { RAGInterface } from "@/components/ai/rag-interface"
 import { ModelComparison } from "@/components/ai/model-comparison"
+import { ChineseAITextGeneration } from "@/components/ai/chinese-text-generation"
+import { ChineseAIImageGeneration } from "@/components/ai/chinese-image-generation"
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState("text")
@@ -30,14 +32,14 @@ export default function Home() {
             </div>
             <div>
               <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100">BaseAI</h1>
-              <p className="text-slate-600 dark:text-slate-400">Advanced AI Platform - 30+ Models & Services</p>
+              <p className="text-slate-600 dark:text-slate-400">Advanced AI Platform - 100+ Models & Services</p>
             </div>
           </div>
           
           <div className="flex flex-wrap gap-2 mb-6">
             <Badge variant="secondary" className="text-xs">
               <Sparkles className="w-3 h-3 mr-1" />
-              30+ AI Models
+              100+ AI Models
             </Badge>
             <Badge variant="secondary" className="text-xs">
               <Database className="w-3 h-3 mr-1" />
@@ -59,12 +61,16 @@ export default function Home() {
               <Search className="w-3 h-3 mr-1" />
               Web Search
             </Badge>
+            <Badge variant="secondary" className="text-xs">
+              <Globe className="w-3 h-3 mr-1" />
+              Chinese AI
+            </Badge>
           </div>
         </div>
 
         {/* Main Content */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-7">
+          <TabsList className="grid w-full grid-cols-9">
             <TabsTrigger value="text" className="flex items-center gap-2">
               <MessageSquare className="w-4 h-4" />
               <span className="hidden sm:inline">Text</span>
@@ -92,6 +98,14 @@ export default function Home() {
             <TabsTrigger value="compare" className="flex items-center gap-2">
               <GitCompare className="w-4 h-4" />
               <span className="hidden sm:inline">Compare</span>
+            </TabsTrigger>
+            <TabsTrigger value="chinese-text" className="flex items-center gap-2">
+              <Globe className="w-4 h-4" />
+              <span className="hidden sm:inline">中文</span>
+            </TabsTrigger>
+            <TabsTrigger value="chinese-image" className="flex items-center gap-2">
+              <ImageIcon className="w-4 h-4" />
+              <span className="hidden sm:inline">中文图</span>
             </TabsTrigger>
           </TabsList>
 
@@ -121,6 +135,14 @@ export default function Home() {
 
           <TabsContent value="compare" className="space-y-6">
             <ModelComparison />
+          </TabsContent>
+
+          <TabsContent value="chinese-text" className="space-y-6">
+            <ChineseAITextGeneration />
+          </TabsContent>
+
+          <TabsContent value="chinese-image" className="space-y-6">
+            <ChineseAIImageGeneration />
           </TabsContent>
         </Tabs>
       </div>
