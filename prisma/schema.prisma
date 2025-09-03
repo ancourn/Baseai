@@ -19,14 +19,42 @@ model User {
   name      String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  
+  // Relations
+  chatMessages ChatMessage[]
+  generatedImages GeneratedImage[]
+  searchHistory  SearchHistory[]
 }
 
-model Post {
+model ChatMessage {
   id        String   @id @default(cuid())
-  title     String
-  content   String?
-  published Boolean  @default(false)
-  authorId  String
+  message   String
+  response  String
+  userId    String
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model GeneratedImage {
+  id        String   @id @default(cuid())
+  prompt    String
+  imageData String   // Base64 encoded image data
+  userId    String
+  createdAt DateTime @default(now())
+  
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model SearchHistory {
+  id        String   @id @default(cuid())
+  query     String
+  results   String   // JSON string of search results
+  userId    String
+  createdAt DateTime @default(now())
+  
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
