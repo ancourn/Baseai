@@ -3,27 +3,30 @@ import { aiService } from '@/lib/ai-service'
 
 export async function POST(request: NextRequest) {
   try {
-    const { query, numResults = 10 } = await request.json()
+    const { text, model = 'text-embedding-ada-002' } = await request.json()
 
-    if (!query) {
+    if (!text) {
       return NextResponse.json(
-        { success: false, error: 'Query is required' },
+        { success: false, error: 'Text is required' },
         { status: 400 }
       )
     }
 
-    const results = await aiService.webSearch(query, numResults)
+    const embedding = await aiService.generateEmbedding({
+      text,
+      model
+    })
 
     return NextResponse.json({
       success: true,
-      results,
-      query,
-      count: Array.isArray(results) ? results.length : 0,
+      embedding,
+      model,
+      dimensions: embedding.length,
       timestamp: new Date().toISOString(),
     })
 
   } catch (error) {
-    console.error('Web search error:', error)
+    console.error('Embedding generation error:', error)
     return NextResponse.json(
       { 
         success: false, 

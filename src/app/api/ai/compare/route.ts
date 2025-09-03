@@ -3,27 +3,34 @@ import { aiService } from '@/lib/ai-service'
 
 export async function POST(request: NextRequest) {
   try {
-    const { query, numResults = 10 } = await request.json()
+    const { prompt, models } = await request.json()
 
-    if (!query) {
+    if (!prompt) {
       return NextResponse.json(
-        { success: false, error: 'Query is required' },
+        { success: false, error: 'Prompt is required' },
         { status: 400 }
       )
     }
 
-    const results = await aiService.webSearch(query, numResults)
+    if (!models || !Array.isArray(models) || models.length === 0) {
+      return NextResponse.json(
+        { success: false, error: 'Models are required and must be an array' },
+        { status: 400 }
+      )
+    }
+
+    const results = await aiService.compareModels(prompt, models)
 
     return NextResponse.json({
       success: true,
       results,
-      query,
-      count: Array.isArray(results) ? results.length : 0,
+      prompt,
+      models,
       timestamp: new Date().toISOString(),
     })
 
   } catch (error) {
-    console.error('Web search error:', error)
+    console.error('Model comparison error:', error)
     return NextResponse.json(
       { 
         success: false, 

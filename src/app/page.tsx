@@ -4,17 +4,15 @@ import { useState } from "react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
-import { Separator } from "@/components/ui/separator"
-import { Brain, Image as ImageIcon, Search, MessageSquare, FileText, Settings, Sparkles } from "lucide-react"
+import { Brain, Image as ImageIcon, Search, MessageSquare, FileText, Settings, Sparkles, BookOpen, GitCompare, Database } from "lucide-react"
 import { TextGeneration } from "@/components/ai/text-generation"
 import { ImageGeneration } from "@/components/ai/image-generation"
 import { WebSearch } from "@/components/ai/web-search"
 import { ChatInterface } from "@/components/ai/chat-interface"
 import { DocumentAnalysis } from "@/components/ai/document-analysis"
+import { RAGInterface } from "@/components/ai/rag-interface"
+import { ModelComparison } from "@/components/ai/model-comparison"
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState("text")
@@ -32,37 +30,41 @@ export default function Home() {
             </div>
             <div>
               <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100">BaseAI</h1>
-              <p className="text-slate-600 dark:text-slate-400">Advanced AI Platform</p>
+              <p className="text-slate-600 dark:text-slate-400">Advanced AI Platform - 30+ Models & Services</p>
             </div>
           </div>
           
           <div className="flex flex-wrap gap-2 mb-6">
             <Badge variant="secondary" className="text-xs">
               <Sparkles className="w-3 h-3 mr-1" />
-              GPT-4
+              30+ AI Models
             </Badge>
             <Badge variant="secondary" className="text-xs">
-              <Sparkles className="w-3 h-3 mr-1" />
-              Claude 3
+              <Database className="w-3 h-3 mr-1" />
+              Vector DB
             </Badge>
             <Badge variant="secondary" className="text-xs">
-              <Sparkles className="w-3 h-3 mr-1" />
-              Gemini Pro
+              <BookOpen className="w-3 h-3 mr-1" />
+              RAG System
             </Badge>
             <Badge variant="secondary" className="text-xs">
-              <Sparkles className="w-3 h-3 mr-1" />
-              HuggingFace
+              <GitCompare className="w-3 h-3 mr-1" />
+              Model Compare
             </Badge>
             <Badge variant="secondary" className="text-xs">
-              <Sparkles className="w-3 h-3 mr-1" />
-              Replicate
+              <MessageSquare className="w-3 h-3 mr-1" />
+              Real-time Chat
+            </Badge>
+            <Badge variant="secondary" className="text-xs">
+              <Search className="w-3 h-3 mr-1" />
+              Web Search
             </Badge>
           </div>
         </div>
 
         {/* Main Content */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5">
+          <TabsList className="grid w-full grid-cols-7">
             <TabsTrigger value="text" className="flex items-center gap-2">
               <MessageSquare className="w-4 h-4" />
               <span className="hidden sm:inline">Text</span>
@@ -82,6 +84,14 @@ export default function Home() {
             <TabsTrigger value="docs" className="flex items-center gap-2">
               <FileText className="w-4 h-4" />
               <span className="hidden sm:inline">Docs</span>
+            </TabsTrigger>
+            <TabsTrigger value="rag" className="flex items-center gap-2">
+              <BookOpen className="w-4 h-4" />
+              <span className="hidden sm:inline">RAG</span>
+            </TabsTrigger>
+            <TabsTrigger value="compare" className="flex items-center gap-2">
+              <GitCompare className="w-4 h-4" />
+              <span className="hidden sm:inline">Compare</span>
             </TabsTrigger>
           </TabsList>
 
@@ -103,6 +113,14 @@ export default function Home() {
 
           <TabsContent value="docs" className="space-y-6">
             <DocumentAnalysis />
+          </TabsContent>
+
+          <TabsContent value="rag" className="space-y-6">
+            <RAGInterface />
+          </TabsContent>
+
+          <TabsContent value="compare" className="space-y-6">
+            <ModelComparison />
           </TabsContent>
         </Tabs>
       </div>

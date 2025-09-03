@@ -1,14 +1,15 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
-import { Loader2, Send, Copy, Download, Sparkles } from "lucide-react"
+import { Loader2, Send, Copy, Download, Sparkles, Filter } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
+import { AI_MODELS, getModelsByType } from "@/lib/ai-registry"
 
 type TextGenerationProps = Record<string, never>
 
@@ -17,17 +18,28 @@ export function TextGeneration({}: TextGenerationProps) {
   const [model, setModel] = useState("gpt-4")
   const [temperature, setTemperature] = useState(0.7)
   const [maxTokens, setMaxTokens] = useState(1000)
+  const [systemPrompt, setSystemPrompt] = useState("")
   const [response, setResponse] = useState("")
   const [isLoading, setIsLoading] = useState(false)
+  const [availableModels, setAvailableModels] = useState(getModelsByType('text'))
+  const [filterProvider, setFilterProvider] = useState<string>("all")
+  const [filterCategory, setFilterCategory] = useState<string>("all")
   const { toast } = useToast()
 
-  const models = [
-    { id: "gpt-4", name: "GPT-4", provider: "OpenAI" },
-    { id: "claude-3", name: "Claude 3", provider: "Anthropic" },
-    { id: "gemini-pro", name: "Gemini Pro", provider: "Google" },
-    { id: "llama-2", name: "Llama 2", provider: "Meta" },
-    { id: "mistral", name: "Mistral", provider: "Mistral AI" },
-  ]
+  useEffect(() => {
+    // Filter models based on selected filters
+    let filtered = getModelsByType('text')
+    
+    if (filterProvider !== "all") {
+      filtered = filtered.filter(m => m.provider === filterProvider)
+    }
+    
+    if (filterCategory !== "all") {
+      filtered = filtered.filter(m => m.category === filterCategory)
+    }
+    
+    setAvailableModels(filtered)
+  }, [filterProvider, filterCategory])
 
   const handleGenerate = async () => {
     if (!prompt.trim()) {
@@ -49,6 +61,7 @@ export function TextGeneration({}: TextGenerationProps) {
           model,
           temperature,
           maxTokens,
+          systemPrompt
         }),
       })
 
@@ -87,34 +100,96 @@ export function TextGeneration({}: TextGenerationProps) {
     URL.revokeObjectURL(url)
   }
 
+  const getUniqueProviders = () => {
+    const providers = [...new Set(getModelsByType('text').map(m => m.provider))]
+    return providers
+  }
+
+  const getUniqueCategories = () => {
+    const categories = [...new Set(getModelsByType('text').map(m => m.category))]
+    return categories
+  }
+
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
       {/* Input Section */}
-      <Card>
+      <Card className="xl:col-span-1">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Sparkles className="w-5 h-5" />
             Text Generation
           </CardTitle>
           <CardDescription>
-            Generate text using advanced AI models
+            Generate text using 30+ AI models
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
+          {/* Filters */}
+          <div className="space-y-3">
+            <div className="flex items-center gap-2">
+              <Filter className="w-4 h-4" />
+              <span className="text-sm font-medium">Filters</span>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <label className="text-xs font-medium mb-1 block">Provider</label>
+                <Select value={filterProvider} onValueChange={setFilterProvider}>
+                  <SelectTrigger className="h-8 text-xs">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Providers</SelectItem>
+                    {getUniqueProviders().map(provider => (
+                      <SelectItem key={provider} value={provider}>
+                        {provider}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div>
+                <label className="text-xs font-medium mb-1 block">Category</label>
+                <Select value={filterCategory} onValueChange={setFilterCategory}>
+                  <SelectTrigger className="h-8 text-xs">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Categories</SelectItem>
+                    {getUniqueCategories().map(category => (
+                      <SelectItem key={category} value={category}>
+                        {category}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </div>
+
           <div>
-            <label className="text-sm font-medium mb-2 block">Model</label>
+            <label className="text-sm font-medium mb-2 block">Model ({availableModels.length} available)</label>
             <Select value={model} onValueChange={setModel}>
               <SelectTrigger>
-                <SelectValue />
+                <SelectValue placeholder="Select a model" />
               </SelectTrigger>
-              <SelectContent>
-                {models.map((m) => (
+              <SelectContent className="max-h-80">
+                {availableModels.map((m) => (
                   <SelectItem key={m.id} value={m.id}>
-                    <div className="flex items-center gap-2">
-                      <span>{m.name}</span>
-                      <Badge variant="outline" className="text-xs">
-                        {m.provider}
-                      </Badge>
+                    <div className="flex flex-col gap-1">
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium">{m.name}</span>
+                        <Badge variant="outline" className="text-xs">
+                          {m.provider}
+                        </Badge>
+                        <Badge variant={m.category === 'proprietary' ? 'default' : 'secondary'} className="text-xs">
+                          {m.category}
+                        </Badge>
+                      </div>
+                      <div className="text-xs text-slate-500">
+                        {m.description}
+                      </div>
                     </div>
                   </SelectItem>
                 ))}
@@ -144,11 +219,21 @@ export function TextGeneration({}: TextGenerationProps) {
             <input
               type="range"
               min="100"
-              max="4000"
+              max="8000"
               step="100"
               value={maxTokens}
               onChange={(e) => setMaxTokens(parseInt(e.target.value))}
               className="w-full"
+            />
+          </div>
+
+          <div>
+            <label className="text-sm font-medium mb-2 block">System Prompt (Optional)</label>
+            <Textarea
+              placeholder="You are a helpful assistant..."
+              value={systemPrompt}
+              onChange={(e) => setSystemPrompt(e.target.value)}
+              className="min-h-[80px] text-sm"
             />
           </div>
 
@@ -183,18 +268,18 @@ export function TextGeneration({}: TextGenerationProps) {
       </Card>
 
       {/* Output Section */}
-      <Card>
+      <Card className="xl:col-span-2">
         <CardHeader>
           <CardTitle>Generated Text</CardTitle>
           <CardDescription>
-            AI-generated response will appear here
+            {response ? "AI-generated response" : "Response will appear here"}
           </CardDescription>
         </CardHeader>
         <CardContent>
           {response ? (
             <div className="space-y-4">
-              <div className="p-4 bg-slate-50 dark:bg-slate-800 rounded-lg min-h-[300px] max-h-[400px] overflow-y-auto">
-                <p className="whitespace-pre-wrap text-sm">{response}</p>
+              <div className="p-4 bg-slate-50 dark:bg-slate-800 rounded-lg min-h-[400px] max-h-[600px] overflow-y-auto">
+                <p className="whitespace-pre-wrap text-sm leading-relaxed">{response}</p>
               </div>
               <div className="flex gap-2">
                 <Button variant="outline" size="sm" onClick={handleCopy}>
@@ -208,10 +293,11 @@ export function TextGeneration({}: TextGenerationProps) {
               </div>
             </div>
           ) : (
-            <div className="flex items-center justify-center h-[300px] text-slate-400">
+            <div className="flex items-center justify-center h-[400px] text-slate-400">
               <div className="text-center">
                 <Sparkles className="w-12 h-12 mx-auto mb-4 opacity-50" />
                 <p>Generated text will appear here</p>
+                <p className="text-sm mt-2">Select a model and enter a prompt to get started</p>
               </div>
             </div>
           )}

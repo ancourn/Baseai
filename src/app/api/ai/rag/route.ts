@@ -3,7 +3,7 @@ import { aiService } from '@/lib/ai-service'
 
 export async function POST(request: NextRequest) {
   try {
-    const { query, numResults = 10 } = await request.json()
+    const { query, documents, model = 'gpt-4' } = await request.json()
 
     if (!query) {
       return NextResponse.json(
@@ -12,18 +12,30 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const results = await aiService.webSearch(query, numResults)
+    if (!documents || !Array.isArray(documents) || documents.length === 0) {
+      return NextResponse.json(
+        { success: false, error: 'Documents are required and must be an array' },
+        { status: 400 }
+      )
+    }
+
+    const response = await aiService.ragQuery({
+      query,
+      documents,
+      model
+    })
 
     return NextResponse.json({
       success: true,
-      results,
+      response,
       query,
-      count: Array.isArray(results) ? results.length : 0,
+      documentsCount: documents.length,
+      model,
       timestamp: new Date().toISOString(),
     })
 
   } catch (error) {
-    console.error('Web search error:', error)
+    console.error('RAG query error:', error)
     return NextResponse.json(
       { 
         success: false, 
