@@ -19,6 +19,114 @@ model User {
   name      String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  
+  // Relations
+  preferences   UserPreference?
+  templates     CodeTemplate[]
+  generations   CodeGeneration[]
+  analyses      CodeAnalysis[]
+  projects      Project[]
+  posts         Post[]
+}
+
+model UserPreference {
+  id               String   @id @default(cuid())
+  userId           String   @unique
+  preferredLanguage String   @default("typescript")
+  codeStyle        String   @default("functional") // functional, object-oriented, procedural
+  commentStyle     String   @default("detailed")   // detailed, minimal, none
+  testingFramework String?  // jest, mocha, pytest, etc.
+  linter           String?  // eslint, pylint, etc.
+  aiProvider       String   @default("local")
+  aiModel          String   @default("gpt-3.5-turbo")
+  maxTokens        Int      @default(2000)
+  temperature      Float    @default(0.7)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model CodeTemplate {
+  id          String   @id @default(cuid())
+  name        String
+  description String
+  language    String
+  framework  String?
+  pattern     String
+  template    String
+  variables   String   // JSON string of template variables
+  examples    String   // JSON string of template examples
+  isPublic    Boolean  @default(true)
+  isBuiltIn   Boolean  @default(false)
+  userId      String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relations
+  user     User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+  generations CodeGeneration[]
+}
+
+model CodeGeneration {
+  id          String   @id @default(cuid())
+  prompt      String
+  language    String
+  framework   String?
+  context     String?  // JSON string of context
+  options     String?  // JSON string of options
+  generatedCode String
+  explanation String?
+  confidence  Float
+  suggestions String?  // JSON string of suggestions
+  tests       String?
+  metadata    String?  // JSON string of metadata
+  templateId  String?
+  userId      String?
+  createdAt   DateTime @default(now())
+  
+  // Relations
+  template CodeTemplate? @relation(fields: [templateId], references: [id], onDelete: SetNull)
+  user     User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+}
+
+model CodeAnalysis {
+  id          String   @id @default(cuid())
+  code        String
+  language    String
+  filePath    String?
+  complexity  Int
+  dependencies String // JSON string of dependencies
+  exports     String // JSON string of exports
+  imports     String // JSON string of imports
+  patterns    String // JSON string of patterns
+  issues      String // JSON string of issues
+  metrics     String // JSON string of metrics
+  userId      String?
+  createdAt   DateTime @default(now())
+  
+  // Relations
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+}
+
+model Project {
+  id          String   @id @default(cuid())
+  name        String
+  path        String   @unique
+  description String?
+  language    String?
+  framework   String?
+  structure   String   // JSON string of project structure
+  dependencies String // JSON string of dependencies
+  config      String   // JSON string of project config
+  lastAnalyzed DateTime?
+  userId      String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relations
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
 }
 
 model Post {
@@ -29,4 +137,7 @@ model Post {
   authorId  String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  
+  // Relations
+  author User @relation(fields: [authorId], references: [id], onDelete: Cascade)
 }
