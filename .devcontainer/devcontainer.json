@@ -1,0 +1,49 @@
+{
+  "name": "AI Copilot Development",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:20",
+  "features": {
+    "ghcr.io/devcontainers/features/github-cli:1": {},
+    "ghcr.io/devcontainers/features/node:1": {},
+    "ghcr.io/devcontainers/features/python:1": {},
+    "ghcr.io/devcontainers/features/go:1": {},
+    "ghcr.io/devcontainers/features/java:1": {},
+    "ghcr.io/devcontainers/features/rust:1": {}
+  },
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": {
+          "source.fixAll.eslint": true
+        },
+        "typescript.preferences.preferTypeOnlyAutoImports": true,
+        "typescript.updateImportsOnFileMove.enabled": "always",
+        "files.associations": {
+          "*.css": "tailwindcss"
+        },
+        "editor.quickSuggestions": {
+          "strings": "on",
+          "comments": "on",
+          "other": "on"
+        }
+      },
+      "extensions": [
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "bradlc.vscode-tailwindcss",
+        "ms-vscode.vscode-typescript-next",
+        "prisma.prisma",
+        "ms-vscode.vscode-json",
+        "christian-kohler.path-intellisense",
+        "formulahendry.auto-rename-tag"
+      ]
+    }
+  },
+  "forwardPorts": [3000, 5432],
+  "postCreateCommand": "npm install && npm run db:push",
+  "remoteUser": "node",
+  "containerEnv": {
+    "NODE_ENV": "development",
+    "DATABASE_URL": "file:./dev.db"
+  }
+}
